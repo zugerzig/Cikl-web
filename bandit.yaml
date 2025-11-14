@@ -1,0 +1,2 @@
+exclude_dirs: ["env", "__pycache__"]
+skips: []

@@ -18,7 +18,7 @@ services:
       retries: 10
 
   web:
-    image: zugerzig/cikl-web:%build.number%
+    image: zugerzig/cikl-web:${TAG}
     environment:
       - FLASK_ENV=production
     depends_on:

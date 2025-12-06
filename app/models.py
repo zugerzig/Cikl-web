@@ -88,6 +88,10 @@ class Event(db.Model, TimestampMixin):
     __tablename__ = "events"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+
+    # ✔ тесты и схемы требуют field name
+    name: Mapped[str] = mapped_column(db.String(200), nullable=False)
+
     title: Mapped[Optional[str]] = mapped_column(db.String(200))
     venue: Mapped[str] = mapped_column(db.String(200), nullable=False)
     starts_at: Mapped[datetime] = mapped_column(
@@ -97,6 +101,7 @@ class Event(db.Model, TimestampMixin):
     entries: Mapped[List["Entry"]] = relationship(
         "Entry", back_populates="event", cascade="all, delete-orphan"
     )
+
 
 
 # ============================

@@ -1,13 +1,16 @@
 from flask import Flask
+from typing import Optional, Type
 from .config import Config
 from .extensions import db, migrate
 from .routes import register_blueprints
 
-def create_app(config_object: type[Config] | None = None) -> Flask:
+def create_app(config_object: Optional[Type[Config]] = None) -> Flask:
     app = Flask(__name__)
+    
     app.config.from_object(config_object or Config())
     app.config["JSON_AS_ASCII"] = False
     app.json.ensure_ascii = False
+
     db.init_app(app)
     migrate.init_app(app, db)
 
@@ -20,7 +23,7 @@ def create_app(config_object: type[Config] | None = None) -> Flask:
     @app.get("/health")
     def health():
         return {"status": "ok"}
-    
+
     @app.after_request
     def force_utf8_json(resp):
         if resp.mimetype == "application/json":

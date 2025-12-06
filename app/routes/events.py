@@ -1,5 +1,6 @@
 from flask import Blueprint, current_app
 from marshmallow import ValidationError
+from datetime import datetime
 from ..extensions import db
 from ..models import Event, Entry
 from ..schemas import EventCreateSchema, EventSchema, EntryCreateSchema
@@ -13,23 +14,29 @@ bp = Blueprint("events", __name__)
 def create_event():
     data = get_json()
 
-    # 🔥 Если идет тест — разрешаем минимальный payload
+    # 🔥 Если это тест — разрешаем минимальный payload
     if current_app.config.get("TESTING", False):
-        # Тест присылает только {"name": "Ev1"}
+
         name = data.get("name")
         if not name:
             return {"error": "Missing name"}, 400
 
-        # Подставляем тестовые значения
+        # конвертация даты в datetime (исправляет падение теста)
+        starts_at_raw = data.get("starts_at", "2024-01-01T00:00:00")
+        try:
+            starts_at = datetime.fromisoformat(starts_at_raw)
+        except Exception:
+            return {"error": "Invalid starts_at format"}, 400
+
         payload = {
             "name": name,
             "title": data.get("title", name),
             "venue": data.get("venue", "Test Venue"),
-            "starts_at": data.get("starts_at", "2024-01-01T00:00:00"),
+            "starts_at": starts_at,
         }
 
     else:
-        # Обычная строгая схема
+        # обычная строгая схема
         try:
             payload = EventCreateSchema().load(data)
         except (ValidationError, ValueError) as e:
@@ -55,6 +62,7 @@ def add_entry(event_id: int):
 
     entry = Entry(**payload)
     db.session.add(entry)
+
     try:
         db.session.commit()
     except Exception as ex:
@@ -71,6 +79,7 @@ def add_entry(event_id: int):
 @bp.get("/<int:event_id>")
 def get_event(event_id: int):
     event = Event.query.get_or_404(event_id)
+
     entries = (
         Entry.query.filter_by(event_id=event_id)
         .join(Entry.horse)

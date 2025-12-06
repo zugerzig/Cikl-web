@@ -7,7 +7,7 @@ def test_create_event_minimal(monkeypatch):
     app.config["TESTING"] = True
 
     # get_json → возвращает фиктивный payload
-    monkeypatch.setattr("app.routes.events.get_json", lambda: {"name": "Ev1"})
+    monkeypatch.setattr("app.routes.events.get_json", lambda: {"title": "Ev1"})
 
     # подменяем SQLAlchemy session.add/commit
     class DummySession:
@@ -18,5 +18,5 @@ def test_create_event_minimal(monkeypatch):
     with app.app_context():
         resp, status = create_event()
         assert status == 201
-        assert resp["name"] == "Ev1"
+        assert resp["title"] == "Ev1"
         assert resp["venue"] == "Test Venue"

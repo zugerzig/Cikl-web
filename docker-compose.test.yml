@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: cikl-test-db
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: cikl_test_db
+      POSTGRES_USER: cikl
+      POSTGRES_PASSWORD: cikl
+    volumes:
+      - cikl_test_pgdata:/var/lib/postgresql/data
+
+volumes:
+  cikl_test_pgdata:
